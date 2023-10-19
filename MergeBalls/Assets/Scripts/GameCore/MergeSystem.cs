@@ -22,8 +22,6 @@ namespace BiniGames.GameCore {
 
             if (actorsAggregator.IsMarkedToKill(sender) || actorsAggregator.IsMarkedToKill(other)) return;
 
-            Debug.LogErrorFormat("OnCollision B {0}, {1}", sender, other);
-
             if (!collisions.ContainsKey(sender)) collisions.Add(other, collision);
             else Merge(collision, collisions);
         }
@@ -37,6 +35,8 @@ namespace BiniGames.GameCore {
             var distance = direction.magnitude;
             var spawnPosition = actor1.transform.position + direction.normalized * distance / 2;
             OnMerge?.Invoke(spawnPosition, actor1.Key + 1);
+
+            collisions.Remove(collision.collider.GetInstanceID());
 
             actor1.AnimateDeath(spawnPosition);
             actor1.OnCollide -= OnCollision;

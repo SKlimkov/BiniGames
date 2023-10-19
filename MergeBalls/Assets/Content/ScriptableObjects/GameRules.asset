@@ -15,7 +15,7 @@ MonoBehaviour:
   MinStartBallsCount: 1
   MaxStartBallsCount: 4
   MaxStartBallsGrade: 3
-  PlayerSpawnType: 0
+  PlayerSpawnType: 1
   MaxPlayerBallGrade: 6
   PlayerGrade: 1
   SightLineLenght: 7.5

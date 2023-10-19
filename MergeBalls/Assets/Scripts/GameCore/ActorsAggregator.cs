@@ -10,13 +10,11 @@ namespace BiniGames.GameCore {
         }
 
         public void AddActor(GameActor actor) {
-            Debug.LogErrorFormat("AddActor {0}", actor.ColliderId);
             var isSuccess = actors.TryAdd(actor.ColliderId, actor);
             if (!isSuccess) throw new System.Exception($"Actor with {actor.ColliderId} instance id already exists!");
         }
 
         public void RemoveActor(GameActor actor) {
-            Debug.LogErrorFormat("RemoveActor {0}", actor.ColliderId);
             if (actors.ContainsKey(actor.ColliderId)) actors.Remove(actor.ColliderId);
             else throw new System.Exception($"Can't find actor with {actor.ColliderId} instance id!");
         }
