@@ -17,5 +17,6 @@ namespace BiniGames.GameCore {
         public int PlayerGrade = 0;
         public float SightLineLenght = 7.5f;
         public float ForcePower = 4f;
+        public int WinGrade = 9;
     }
 }

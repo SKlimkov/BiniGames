@@ -1,6 +1,6 @@
 using BiniGames.GameCore.Spawn;
 using BiniGames.Input;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -13,6 +13,10 @@ namespace BiniGames.GameCore {
         private Vector3 playerSpawnPosition;
         private ActorsAggregator actorsAggregator;
         private MergeSystem mergeSystem;
+
+        public event Action OnWin;
+
+        public bool CanShoot => player != null;
 
         public GameCycle(SpawnManager spawnManager, IPointerEventHadler pointerUpHandler, GameRules rules, ActorsAggregator actorsAggregator) {
             this.actorsAggregator = actorsAggregator;
@@ -66,6 +70,11 @@ namespace BiniGames.GameCore {
         }
 
         private async void OnMerge(Vector3 position, int grade) {
+            if (grade >= rules.WinGrade) {
+                OnWin?.Invoke();
+                return;
+            }
+
             var actor = spawnManager.SpawnOnMerge(position, grade);
             actor.gameObject.SetActive(true);
             actor.OnCollide += mergeSystem.OnCollision;
