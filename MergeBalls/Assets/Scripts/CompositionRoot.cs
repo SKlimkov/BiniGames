@@ -21,12 +21,16 @@ namespace BiniGames {
             var spawnManager = new SpawnManager(actorPrefabs, gameRules, ballsRoot, poolRoot);
             var actorsAggregator = new ActorsAggregator();
             var gameCycle = new GameCycle(spawnManager, pointerUpHadler, gameRules, actorsAggregator);
-            var sightLine = new SightingLine(gameRules, lineRenderer, pointerDownHadler, pointerUpHadler, pointerMoveHadler);
-
-            await Task.Delay(100);
-            uIManager.HideLoadingScreen();
+            var sightLine = new SightingLine(gameRules, gameCycle, lineRenderer, pointerDownHadler, pointerUpHadler, pointerMoveHadler);
 
             await gameCycle.PrepareField();
+
+            await Task.Delay(200);
+
+            uIManager.HideLoadingScreen();
+            gameCycle.OnWin += uIManager.ShowWinScreen;
+
+            await gameCycle.Start();
 
             await Task.Delay(100);
         }

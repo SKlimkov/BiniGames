@@ -13,10 +13,13 @@ namespace BiniGames.GameCore {
         private Vector3 playerSpawnPosition;
         private ActorsAggregator actorsAggregator;
         private MergeSystem mergeSystem;
+        private bool alreadyWin;
+
+        private List<GameActor> presettedActors;
 
         public event Action OnWin;
 
-        public bool CanShoot => player != null;
+        public bool CanShoot => !alreadyWin && player != null;
 
         public GameCycle(SpawnManager spawnManager, IPointerEventHadler pointerUpHandler, GameRules rules, ActorsAggregator actorsAggregator) {
             this.actorsAggregator = actorsAggregator;
@@ -30,8 +33,12 @@ namespace BiniGames.GameCore {
 
         public async Task PrepareField() {
             player = await SpawnPlayer();
-            await SpawnPresettedActors(spawnManager.SpawnPresettedActors());
+            presettedActors = spawnManager.SpawnPresettedActors();
+            await Task.Delay(200);
+        }
 
+        public async Task Start() {
+            await SpawnPresettedActors(presettedActors);
         }
 
         private async Task SpawnPresettedActors(List<GameActor> actors) {
@@ -59,7 +66,7 @@ namespace BiniGames.GameCore {
         }
 
         private async void OnTapComplete(Vector2 targetPosition) {
-            if (player == null) return;
+            if (!CanShoot) return;
 
             player.SwitchGravity(true);
             var direction = Camera.main.ScreenToWorldPoint(targetPosition) - playerSpawnPosition;
@@ -70,7 +77,8 @@ namespace BiniGames.GameCore {
         }
 
         private async void OnMerge(Vector3 position, int grade) {
-            if (grade >= rules.WinGrade) {
+            if (!alreadyWin && grade >= rules.WinGrade) {
+                alreadyWin = true;
                 OnWin?.Invoke();
                 return;
             }
