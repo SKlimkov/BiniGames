@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 03a7343c714132d4eb73bc85e01cc0d5
+guid: cefa0bb14ca24f34faca54811d534a99
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Toony Sans PERSONAL USE
+  - Chango
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
