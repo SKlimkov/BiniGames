@@ -3,7 +3,7 @@ using UnityEngine;
 namespace BiniGames.UI {
     public class UIManager : MonoBehaviour {
         [SerializeField] LoadingScreenWindow loadingScreenWindow;
-        [SerializeField] WinScreenWindow winScreenWindow;
+        [SerializeField] VictoryScreenWindow winScreenWindow;
 
         private void Awake() {
             loadingScreenWindow.Show();
