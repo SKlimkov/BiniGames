@@ -56,7 +56,7 @@ namespace BiniGames.GameCore {
             var actor2 = collision.collider.GetComponent<GameActor>();
             var direction = actor1.transform.position - actor2.transform.position;
             var distance = direction.magnitude;
-            var spawnPosition = actor1.transform.position + direction.normalized * distance / 2;
+            var spawnPosition = actor2.transform.position + direction.normalized * distance / 2;
             OnMerge?.Invoke(spawnPosition, actor1.Key + 1);
 
             actor1.AnimateDeath(spawnPosition);
