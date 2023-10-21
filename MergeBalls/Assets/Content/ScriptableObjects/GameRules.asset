@@ -18,5 +18,7 @@ MonoBehaviour:
   PlayerSpawnType: 1
   MaxPlayerBallGrade: 6
   PlayerGrade: 1
-  SightLineLenght: 7.5
   ForcePower: 60
+  SightLineLenght: 7.5
+  WinGrade: 9
+  MinRelativeVelocityForEffects: 5

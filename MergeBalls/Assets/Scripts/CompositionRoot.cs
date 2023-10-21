@@ -1,3 +1,4 @@
+using BiniGames.Effects;
 using BiniGames.GameCore;
 using BiniGames.GameCore.Spawn;
 using BiniGames.Input;
@@ -16,9 +17,10 @@ namespace BiniGames {
         [SerializeField] private PointerUpHandler pointerUpHadler;
         [SerializeField] private PointerMoveHandler pointerMoveHadler;
         [SerializeField] private LineRenderer lineRenderer;
+        [SerializeField] private CollideEffect collideEffectPrefab;
 
         private async void Awake() {
-            var spawnManager = new SpawnManager(actorPrefabs, gameRules, ballsRoot, poolRoot);
+            var spawnManager = new SpawnManager(actorPrefabs, collideEffectPrefab, gameRules, ballsRoot, poolRoot);
             var actorsAggregator = new ActorsAggregator();
             var gameCycle = new GameCycle(spawnManager, pointerUpHadler, gameRules, actorsAggregator);
             var sightLine = new SightingLine(gameRules, gameCycle, lineRenderer, pointerDownHadler, pointerUpHadler, pointerMoveHadler);

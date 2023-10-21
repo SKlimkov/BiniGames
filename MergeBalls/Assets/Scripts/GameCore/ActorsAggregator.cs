@@ -1,40 +1,50 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace BiniGames.GameCore {
+    public static class AggregatorHelpers {
+        public static int GetGradeByColliderId(this ActorsAggregator actorsAggregator, int id) {
+            return actorsAggregator.GetComponent<GameActor>(id).Key;
+        }
+
+        public static bool IsMarkedToKill(this ActorsAggregator actorsAggregator, int id) {
+            return actorsAggregator.GetComponent<GameActor>(id).IsMarkedToKill;
+        }
+    }
+
     public class ActorsAggregator {
-        private Dictionary<int, GameActor> actors;
+        private Dictionary<Type, ComponentsAggregator> aggregators;
 
         public ActorsAggregator() {
-            actors = new Dictionary<int, GameActor>();
+            aggregators = new Dictionary<Type, ComponentsAggregator> {
+                { typeof(GameActor), new ComponentsAggregator<GameActor>() },
+                { typeof(Rigidbody2D), new ComponentsAggregator<Rigidbody2D>()}
+            };
         }
 
-        public void AddActor(GameActor actor) {
-            var isSuccess = actors.TryAdd(actor.ColliderId, actor);
-            if (!isSuccess) throw new System.Exception($"Actor with {actor.ColliderId} instance id already exists!");
+        public void AddComponent<TComponent>(int id, TComponent component) where TComponent : Component {
+            var isSucces = aggregators.TryGetValue(typeof(TComponent), out var aggregator);
+            if (!isSucces) throw new Exception($"Can't find aggregator for type {typeof(TComponent)}");
+
+            (aggregator as ComponentsAggregator<TComponent>).AddComponent(id, component);
         }
 
-        public void RemoveActor(GameActor actor) {
-            if (actors.ContainsKey(actor.ColliderId)) actors.Remove(actor.ColliderId);
-            else throw new System.Exception($"Can't find actor with {actor.ColliderId} instance id!");
+        public void RemoveComponent<TComponent>(int id) where TComponent : Component {
+            var isSucces = aggregators.TryGetValue(typeof(TComponent), out var aggregator);
+            if (!isSucces) throw new Exception($"Can't find aggregator for type {typeof(TComponent)}");
+
+            (aggregator as ComponentsAggregator<TComponent>).RemoveComponent(id);
         }
 
-        public bool HasActor(int id) {
-            return actors.ContainsKey(id);
+        public bool HasComponent<TComponent>(int id) where TComponent : Component {
+            var isSucces = aggregators.TryGetValue(typeof(TComponent), out var aggregator);
+            return isSucces ? aggregator.HasComponent(id) : throw new Exception($"Can't find aggregator for type {typeof(TComponent)}");
         }
 
-        public int GetGradeByColliderId(int id) {
-            return GetActor(id).Key;
-        }
-
-        public bool IsMarkedToKill(int id) {
-            return GetActor(id).IsMarkedToKill;
-        }
-
-        public GameActor GetActor(int id) {
-            var isSuccess = actors.TryGetValue(id, out var actor);
-            if (!isSuccess) throw new System.Exception($"Can't find actor with {actor.GetInstanceID()} instance id!");
-            return actor;
+        public TComponent GetComponent<TComponent>(int id) where TComponent : Component {
+            var isSucces = aggregators.TryGetValue(typeof(TComponent), out var aggregator);
+            return isSucces ? (aggregator as ComponentsAggregator<TComponent>).GetComponent(id) : throw new Exception($"Can't find aggregator for type {typeof(TComponent)}");
         }
     }
 }

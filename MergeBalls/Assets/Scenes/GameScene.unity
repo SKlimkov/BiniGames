@@ -171,6 +171,7 @@ MonoBehaviour:
   pointerUpHadler: {fileID: 1478700079}
   pointerMoveHadler: {fileID: 1478700078}
   lineRenderer: {fileID: 1374579371}
+  collideEffectPrefab: {fileID: 38921537528233418, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
 --- !u!4 &33889640
 Transform:
   m_ObjectHideFlags: 0
@@ -5278,6 +5279,68 @@ DistanceJoint2D:
   m_AutoConfigureDistance: 1
   m_Distance: 1.4
   m_MaxDistanceOnly: 0
+--- !u!1001 &153828465
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 1447009514}
+    m_Modifications:
+    - target: {fileID: 6902516505000187018, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6902516505000187018, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6902516505000187018, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6902516505000187018, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6902516505000187018, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6902516505000187018, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6902516505000187018, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6902516505000187018, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6902516505000187018, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6902516505000187018, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6902516505000187018, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6902516505000187019, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+      propertyPath: m_Name
+      value: CollideParticle
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+--- !u!4 &153828466 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6902516505000187018, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+  m_PrefabInstance: {fileID: 153828465}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &188714786
 GameObject:
   m_ObjectHideFlags: 0
@@ -5331,7 +5394,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_Color: {r: 0, g: 0.6509804, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6775,8 +6838,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 182.5, y: -51.920006}
-  m_SizeDelta: {x: 365, y: 103.84001}
+  m_AnchoredPosition: {x: 185.5, y: -52.72001}
+  m_SizeDelta: {x: 371, y: 105.44002}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &695905636
 MonoBehaviour:
@@ -12164,7 +12227,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 55.45
+  m_fontSize: 56.5
   m_fontSizeBase: 54.95
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -13110,7 +13173,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26.25
+  m_fontSize: 27.6
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -18882,6 +18945,7 @@ Transform:
   m_Children:
   - {fileID: 943530776}
   - {fileID: 365326411}
+  - {fileID: 153828466}
   m_Father: {fileID: 235967338}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -19169,8 +19233,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 182.5, y: -116.820015}
-  m_SizeDelta: {x: 365, y: 25.960003}
+  m_AnchoredPosition: {x: 185.5, y: -118.62002}
+  m_SizeDelta: {x: 371, y: 26.360004}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1503871545
 MonoBehaviour:
@@ -19822,7 +19886,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 65.2
+  m_fontSize: 68.55
   m_fontSizeBase: 50
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -20748,7 +20812,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.6496899, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.6509804, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -20802,7 +20866,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2145315399
 RectTransform:
   m_ObjectHideFlags: 0

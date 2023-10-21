@@ -12,23 +12,26 @@ namespace BiniGames.GameCore {
         private GameRules rules;
         private Vector3 playerSpawnPosition;
         private ActorsAggregator actorsAggregator;
-        private MergeSystem mergeSystem;
+        private CollisionSystem collesionSystem;
         private bool alreadyWin;
+        private bool alreadyStarted = true;
 
         private List<GameActor> presettedActors;
 
         public event Action OnWin;
 
-        public bool CanShoot => !alreadyWin && player != null;
+        public bool CanShoot => alreadyStarted && !alreadyWin && player != null;
 
         public GameCycle(SpawnManager spawnManager, IPointerEventHadler pointerUpHandler, GameRules rules, ActorsAggregator actorsAggregator) {
             this.actorsAggregator = actorsAggregator;
-            mergeSystem = new MergeSystem(actorsAggregator);
-            mergeSystem.OnMerge += OnMerge;
             this.rules = rules;
             this.spawnManager = spawnManager;
             pointerUpHandler.OnPointerEvent += OnTapComplete;
             playerSpawnPosition = SpawnHelpers.GetPlayerSpawnPosition();
+
+            collesionSystem = new CollisionSystem(actorsAggregator, rules);
+            collesionSystem.OnMerge += OnMerge;
+            collesionSystem.OnCollide += OnCollide;
         }
 
         public async Task PrepareField() {
@@ -38,15 +41,14 @@ namespace BiniGames.GameCore {
         }
 
         public async Task Start() {
+            alreadyStarted = true;
             await SpawnPresettedActors(presettedActors);
         }
 
         private async Task SpawnPresettedActors(List<GameActor> actors) {
             for (var i = 0; i < actors.Count; i++) {
                 var actor = actors[i];
-                actor.gameObject.SetActive(true);
-                actor.OnCollide += mergeSystem.OnCollision;
-                actorsAggregator.AddActor(actor);
+                PrepareActor(actor, false);
                 await actor.AnimateSpawn();
 
                 actor.SwitchGravity(true);
@@ -56,10 +58,7 @@ namespace BiniGames.GameCore {
 
         private async Task<GameActor> SpawnPlayer() {
             var actor = spawnManager.SpawnPlayer();
-            actor.gameObject.SetActive(true);
-            actor.OnCollide += mergeSystem.OnCollision;
-            actor.SwitchGravity(false);
-            actorsAggregator.AddActor(actor);
+            PrepareActor(actor, false);
             await actor.AnimateSpawn();
 
             return actor;
@@ -80,15 +79,23 @@ namespace BiniGames.GameCore {
             if (!alreadyWin && grade >= rules.WinGrade) {
                 alreadyWin = true;
                 OnWin?.Invoke();
-                return;
             }
 
             var actor = spawnManager.SpawnOnMerge(position, grade);
-            actor.gameObject.SetActive(true);
-            actor.OnCollide += mergeSystem.OnCollision;
-            actorsAggregator.AddActor(actor);
-            actor.SwitchGravity(true);
+            PrepareActor(actor, true);
             await actor.AnimateSpawn();
+        }
+
+        private void OnCollide(Vector3 position, Color color1, Color color2, Vector2 sizes) {
+            spawnManager.SpwanCollideEffect(position, color1, color2, sizes);
+        }
+
+        private void PrepareActor(GameActor actor, bool isStartGravity) {
+            actor.gameObject.SetActive(true);
+            actor.OnCollide += collesionSystem.OnCollision;
+            actorsAggregator.AddComponent(actor.ColliderId, actor);
+            actorsAggregator.AddComponent(actor.ColliderId, actor.Rigidbody);
+            actor.SwitchGravity(isStartGravity);
         }
     }
 }

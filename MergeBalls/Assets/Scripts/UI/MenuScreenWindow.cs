@@ -11,7 +11,6 @@ namespace BiniGames.UI {
         }
 
         private void OnStartButtonClick() {
-            Debug.LogErrorFormat("OnStartButtonClick");
             SceneManager.LoadScene(1);
         }
     }

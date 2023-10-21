@@ -1,3 +1,4 @@
+using BiniGames.Effects;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,18 +7,22 @@ namespace BiniGames.GameCore.Spawn {
         private GameRules gameRules;
         private Transform ballsRoot, poolRoot;
         private PolyMonoObjectPool<GameActor> polyMonoObjectPool;
+        private MonoObjectPool<CollideEffect> effectPool;
+        private CollideEffect effectPrefab;
 
         private int maxBallGradeOnField;
         private List<GameActor> startBallsCache;
         private Vector3 playerSpawnPosition;
 
-        public SpawnManager(GameActor[] actorPrefabs, GameRules gameRules, Transform ballsRoot, Transform poolRoot) {
+        public SpawnManager(GameActor[] actorPrefabs, CollideEffect effectPrefab, GameRules gameRules, Transform ballsRoot, Transform poolRoot) {
             this.gameRules = gameRules;
             this.ballsRoot = ballsRoot;
             this.poolRoot = poolRoot;
+            this.effectPrefab = effectPrefab;
 
             var actorFactory = new ActorFactory(actorPrefabs);
-            polyMonoObjectPool = new PolyMonoObjectPool<GameActor>(actorFactory);
+            polyMonoObjectPool = new PolyMonoObjectPool<GameActor>(actorFactory, poolRoot);
+            effectPool = new MonoObjectPool<CollideEffect>(poolRoot);
             startBallsCache = new List<GameActor>();
             playerSpawnPosition = SpawnHelpers.GetPlayerSpawnPosition();
         }
@@ -46,6 +51,17 @@ namespace BiniGames.GameCore.Spawn {
 
         public GameActor SpawnOnMerge(Vector3 position, int grade) {
             return GetGameActor(grade, position, ballsRoot);
+        }
+
+        public void SpwanCollideEffect(Vector3 position, Color color1, Color color2, Vector2 sizes) {
+            var effect = effectPool.Pop(effectPrefab, position, ballsRoot);
+            effect.Play(color1, color2, sizes);
+            effect.OnComplete += OnCollideEffectComplete;
+        }
+
+        private void OnCollideEffectComplete(CollideEffect effect) {
+            effect.OnComplete -= OnCollideEffectComplete;
+            effectPool.Pool(effect);
         }
 
         private GameActor GetGameActor(int grade, Vector3 position, Transform root, bool activate = true) {

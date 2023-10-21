@@ -6,9 +6,10 @@ namespace BiniGames {
         private Dictionary<int, Stack<TPoolable>> pool;
         private IMonoPoolableFactory<TPoolable> factory;
         private Transform poolRoot;
-        public PolyMonoObjectPool(IMonoPoolableFactory<TPoolable> factory) {
+        public PolyMonoObjectPool(IMonoPoolableFactory<TPoolable> factory, Transform poolRoot) {
             pool = new Dictionary<int, Stack<TPoolable>>();
             this.factory = factory;
+            this.poolRoot = poolRoot;
         }
 
         public TPoolable Pop(int key, Transform parent) {

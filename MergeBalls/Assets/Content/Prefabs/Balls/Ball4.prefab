@@ -141,6 +141,7 @@ MonoBehaviour:
   collider2D: {fileID: 3003426888674781007}
   rigidbody2D: {fileID: 3003426888674781006}
   trailRenderer: {fileID: -823268355040609775}
+  color: {r: 0.98823535, g: 0.63529414, b: 0.21568629, a: 1}
 --- !u!96 &-823268355040609775
 TrailRenderer:
   serializedVersion: 2

@@ -9,10 +9,13 @@ namespace BiniGames.GameCore {
         [SerializeField] private new CircleCollider2D collider2D;
         [SerializeField] private new Rigidbody2D rigidbody2D;
         [SerializeField] private TrailRenderer trailRenderer;
+        [SerializeField] private Color color;
 
         public event Action<GameActor> OnDeath;
         public event Action<Collision2D> OnCollide;
 
+        public Color Color => color;
+        public Rigidbody2D Rigidbody => rigidbody2D;
         public int Key => grade;
         public int ColliderId => collider2D.GetInstanceID();
         public bool IsMarkedToKill { get; private set; }
