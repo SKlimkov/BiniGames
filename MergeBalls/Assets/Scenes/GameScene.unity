@@ -11746,7 +11746,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f9ff56f3a473254aaa9209ce6fc444e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  needDebug: 1
+  needDebug: 0
 --- !u!1 &805895832
 GameObject:
   m_ObjectHideFlags: 0
@@ -13110,7 +13110,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 34.95
+  m_fontSize: 26.25
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -18743,7 +18743,7 @@ GameObject:
   - component: {fileID: 1441434500}
   - component: {fileID: 1441434499}
   m_Layer: 5
-  m_Name: Button
+  m_Name: NextButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19822,7 +19822,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 86.75
+  m_fontSize: 65.2
   m_fontSizeBase: 50
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -20797,7 +20797,7 @@ GameObject:
   - component: {fileID: 2145315399}
   - component: {fileID: 2145315400}
   m_Layer: 5
-  m_Name: WinScreen
+  m_Name: VictoryScreenWindow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -20838,5 +20838,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   winLabel: {fileID: 1746944468}
-  okButton: {fileID: 1441434499}
-  particleSystem: {fileID: 84621945}
+  nextButton: {fileID: 1441434499}
+  victoryParticles: {fileID: 84621945}
