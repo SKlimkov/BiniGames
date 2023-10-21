@@ -38,7 +38,6 @@ namespace BiniGames.GameCore.Spawn {
                 var position = new Vector3(xPosition, 0, 0);
                 var grade = Random.Range(0, gameRules.MaxStartBallsGrade + 1);
                 var actor = GetGameActor(grade, position, ballsRoot, false);
-                maxBallGradeOnField = actor.Key > maxBallGradeOnField ? actor.Key : maxBallGradeOnField;
                 startBallsCache.Add(actor);
             }
 
@@ -54,6 +53,7 @@ namespace BiniGames.GameCore.Spawn {
             result.transform.position = position;
             result.gameObject.SetActive(activate);
             result.OnDeath += OnActorDeath;
+            maxBallGradeOnField = grade > maxBallGradeOnField ? grade : maxBallGradeOnField;
             return result;
         }
 
