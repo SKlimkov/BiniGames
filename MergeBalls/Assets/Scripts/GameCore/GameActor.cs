@@ -28,6 +28,7 @@ namespace BiniGames.GameCore {
             IsMarkedToKill = false;
             collider2D.enabled = true;
             trailRenderer.emitting = true;
+            trailRenderer.widthMultiplier = collider2D.radius * 2f;
             rigidbody2D.constraints = RigidbodyConstraints2D.None;
         }
 
