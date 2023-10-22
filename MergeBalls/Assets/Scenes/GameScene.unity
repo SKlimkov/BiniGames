@@ -152,18 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0d70bf1a253c3945a04be3e5ec2a890, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  simpleActorPrefabs:
-  - {fileID: 995588801965207813, guid: 10aa6bd4bb17eaa459e7fcd8b2cdd9ba, type: 3}
-  - {fileID: 6787696820431326400, guid: 8fd81524570b6eb4cbf477857724eb5e, type: 3}
-  - {fileID: -1728437623856718416, guid: 050f8145bb93b7c458b934ebd2afe738, type: 3}
-  - {fileID: 7636619426241644480, guid: 77c89375f22e6cb4aaf538a7d7df7ea1, type: 3}
-  - {fileID: -4064101022385190553, guid: e22f123977431ad449454d67304a6291, type: 3}
-  - {fileID: 4465497631486748095, guid: a23cb0f51cf72e64e872972fdef1452d, type: 3}
-  - {fileID: 6195474119081147851, guid: 7da69eeb8732bca44b2ea8124556ebde, type: 3}
-  - {fileID: 8622082909941346746, guid: fc8c15d3d54b75844997aad06a32083e, type: 3}
-  - {fileID: 8035730959341151313, guid: 0fc59183919e5734fa3835cfb08c8255, type: 3}
-  - {fileID: -3791131456070904704, guid: ecfb78c37a17cae44a888d1e8255e0f1, type: 3}
-  softActorPrefabs:
+  actorPrefabs:
   - {fileID: 7422972218394571078, guid: 08d8523b44ff0534995390dae66aa949, type: 3}
   - {fileID: 3641875115681137164, guid: f770ed5f12be44b4ea47bb3bb318174a, type: 3}
   - {fileID: 8819333013775500553, guid: 4b462812322b33b44a64ae45ecd13b43, type: 3}
@@ -183,8 +172,6 @@ MonoBehaviour:
   pointerMoveHadler: {fileID: 1478700078}
   lineRenderer: {fileID: 1374579371}
   collideEffectPrefab: {fileID: 38921537528233418, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
-  actorPrefabsPath: 
-  softActorsPrefabsPath: 
 --- !u!4 &33889640
 Transform:
   m_ObjectHideFlags: 0
@@ -10697,7 +10684,7 @@ GameObject:
   - component: {fileID: 805895835}
   - component: {fileID: 805895834}
   - component: {fileID: 805895836}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11119,7 +11106,7 @@ GameObject:
   - component: {fileID: 1112669456}
   - component: {fileID: 1112669455}
   - component: {fileID: 1112669457}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16886,7 +16873,7 @@ GameObject:
   - component: {fileID: 1493654696}
   - component: {fileID: 1493654695}
   - component: {fileID: 1493654697}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17091,7 +17078,7 @@ GameObject:
   - component: {fileID: 1613262513}
   - component: {fileID: 1613262512}
   - component: {fileID: 1613262514}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -4,40 +4,26 @@ using UnityEngine;
 
 namespace BiniGames.GameCore {
     public class CollisionSystem {
-        public struct CollissionData {
-            public Collider2D Other;
-            public Collider2D Sender;
-        }
-
         public event Action<Vector3, int> OnMerge;
         public event Action<Vector3, Color, Color, Vector2> OnCollide;
 
-        private Dictionary<int, CollissionData> collisions;
+        private HashSet<int> collisions;
         private ActorsAggregator actorsAggregator;
         private GameRules gameRules;
 
         public CollisionSystem(ActorsAggregator actorsAggregator, GameRules gameRules) {
             this.actorsAggregator = actorsAggregator;
             this.gameRules = gameRules;
-            collisions = new Dictionary<int, CollissionData>();
-        }
-
-        public void OnCollision(Collision2D collision) {
-            var sender = collision.collider;
-            var other = collision.otherCollider;
-            TryMerge(sender, other, collision.relativeVelocity);
+            collisions = new HashSet<int>();
         }
 
         public void OnTrigger(Collider2D sender, Collider2D other) {
-            var softBody1 = actorsAggregator.GetComponent<SoftCollider>(sender.GetInstanceID());
-            var softBody2 = actorsAggregator.GetComponent<SoftCollider>(other.GetInstanceID());
+            var otherActor = actorsAggregator.GetComponent<GameActor>(other.GetInstanceID());
+            if (otherActor.IsMarkedToKill) return;
 
-            /*if (!actorsAggregator.HasComponent<GameActor>(softBody1.ColliderId) || !actorsAggregator.HasComponent<GameActor>(softBody2.ColliderId)) return;*/
+            Debug.LogFormat("OnTrigger {0}, {1}, {2}", sender.gameObject.name, sender.GetInstanceID(), other.GetInstanceID());
 
-            var actor1 = actorsAggregator.GetComponent<GameActor>(softBody1.ColliderId);
-            var actor2 = actorsAggregator.GetComponent<GameActor>(softBody2.ColliderId);
-
-            TryMerge(sender, other, actor1.Velocity + actor2.Velocity);
+            TryMerge(sender, other, actorsAggregator.GetComponent<GameActor>(sender.GetInstanceID()).Velocity + otherActor.Velocity);
         }
 
         private void TryMerge(Collider2D sender, Collider2D other, Vector3 relativeVelocity) {
@@ -45,19 +31,14 @@ namespace BiniGames.GameCore {
             var otherId = other.GetInstanceID();
             if (!actorsAggregator.HasComponent<GameActor>(otherId) || !actorsAggregator.HasComponent<GameActor>(senderId)) return;
 
-            if (actorsAggregator.IsMarkedToKill(senderId) || actorsAggregator.IsMarkedToKill(otherId)) return;
-
-            if (gameRules.UseSoftPrefabs) {
-                var collision = new CollissionData() { Other = other, Sender = sender };
-                //Prevent double call for same collision from different balls
-                if (!collisions.ContainsKey(senderId)) {
-                    collisions.Add(otherId, collision);
-                    return;
-                }
-
-                collisions.Remove(collision.Other.GetInstanceID());
-                collisions.Remove(collision.Sender.GetInstanceID());
+            //Prevent double call for same collision from different balls
+            if (!collisions.Contains(senderId)) {
+                collisions.Add(otherId);
+                return;
             }
+
+            collisions.Remove(senderId);
+            collisions.Remove(otherId);
 
             if (relativeVelocity.sqrMagnitude >= gameRules.SqrMinRelativeVelocityForEffects) PlayCollideEffect(other, sender);
 
@@ -67,8 +48,8 @@ namespace BiniGames.GameCore {
         }
 
         private void PlayCollideEffect(Collider2D collider1, Collider2D collider2) {
-            var actor1 = collider1.gameObject.GetComponent<GameActor>(); //other
-            var actor2 = collider2.GetComponent<GameActor>();
+            var actor1 = actorsAggregator.GetComponent<GameActor>(collider1.GetInstanceID()); //other
+            var actor2 = actorsAggregator.GetComponent<GameActor>(collider2.GetInstanceID());
             var direction = actor1.transform.position - actor2.transform.position;
             var distance = direction.magnitude;
             var spawnPosition = actor2.transform.position + direction.normalized * distance / 2;
@@ -77,24 +58,20 @@ namespace BiniGames.GameCore {
 
         private void Merge(Collider2D collider1, Collider2D collider2) {
             var otherId = collider1.GetInstanceID();
-            var actor1 = collider1.gameObject.GetComponent<GameActor>();
-            var actor2 = collider2.GetComponent<GameActor>();
+            var actor1 = actorsAggregator.GetComponent<GameActor>(collider1.GetInstanceID());
+            var actor2 = actorsAggregator.GetComponent<GameActor>(collider2.GetInstanceID());
             var direction = actor1.transform.position - actor2.transform.position;
             var distance = direction.magnitude;
             var spawnPosition = actor2.transform.position + direction.normalized * distance / 2;
             OnMerge?.Invoke(spawnPosition, actor1.Key + 1);
 
             actor1.AnimateDeath(spawnPosition);
-            actor1.OnCollision -= OnCollision;
             actor1.OnTrigger -= OnTrigger;
             actorsAggregator.RemoveComponent<GameActor>(actor1.ColliderId);
-            if (gameRules.UseSoftPrefabs) actorsAggregator.RemoveSoftCollider(actor1.SoftCollider);
 
             actor2.AnimateDeath(spawnPosition);
-            actor2.OnCollision -= OnCollision;
             actor2.OnTrigger -= OnTrigger;
             actorsAggregator.RemoveComponent<GameActor>(actor2.ColliderId);
-            if (gameRules.UseSoftPrefabs) actorsAggregator.RemoveSoftCollider(actor2.SoftCollider);
         }
     }
 }

@@ -93,10 +93,8 @@ namespace BiniGames.GameCore {
 
         private void PrepareActor(GameActor actor) {
             actor.gameObject.SetActive(true);
-            actor.OnCollision += collesionSystem.OnCollision;
             actor.OnTrigger += collesionSystem.OnTrigger;
             actorsAggregator.AddComponent(actor.ColliderId, actor);
-            if (rules.UseSoftPrefabs) actorsAggregator.AddSoftCollider(actor.SoftCollider);
         }
     }
 }

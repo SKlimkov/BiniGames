@@ -11,18 +11,6 @@ namespace BiniGames.GameCore {
         public static bool IsMarkedToKill(this ActorsAggregator actorsAggregator, int id) {
             return actorsAggregator.GetComponent<GameActor>(id).IsMarkedToKill;
         }
-
-        public static void AddSoftCollider(this ActorsAggregator actorsAggregator, SoftCollider softCollider) {
-            for (var i = 0; i < softCollider.SoftColliders.Count; i++) {
-                actorsAggregator.AddComponent(softCollider.SoftColliders[i].GetInstanceID(), softCollider);
-            }
-        }
-
-        public static void RemoveSoftCollider(this ActorsAggregator actorsAggregator, SoftCollider softCollider) {
-            for (var i = 0; i < softCollider.SoftColliders.Count; i++) {
-                actorsAggregator.RemoveComponent<SoftCollider>(softCollider.SoftColliders[i].GetInstanceID());
-            }
-        }
     }
 
     public class ActorsAggregator {
@@ -30,12 +18,12 @@ namespace BiniGames.GameCore {
 
         public ActorsAggregator() {
             aggregators = new Dictionary<Type, ComponentsAggregator> {
-                { typeof(GameActor), new ComponentsAggregator<GameActor>() },
-                { typeof(SoftCollider), new ComponentsAggregator<SoftCollider>() }
+                { typeof(GameActor), new ComponentsAggregator<GameActor>() }
             };
         }
 
         public void AddComponent<TComponent>(int id, TComponent component) where TComponent : Component {
+            Debug.LogFormat("AddComponent {0}", id);
             var isSucces = aggregators.TryGetValue(typeof(TComponent), out var aggregator);
             if (!isSucces) throw new Exception($"Can't find aggregator for type {typeof(TComponent)}");
 
