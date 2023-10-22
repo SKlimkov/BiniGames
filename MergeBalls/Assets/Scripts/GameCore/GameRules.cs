@@ -24,6 +24,7 @@ namespace BiniGames.GameCore {
         public float SightLineLenght = 7.5f;
         public int WinGrade = 9;
         public float MinRelativeVelocityForEffects = 3f;
+        public bool UseSoftPrefabs;
 
         public float SqrMinRelativeVelocityForEffects { get { return MinRelativeVelocityForEffects * MinRelativeVelocityForEffects; } }
     }

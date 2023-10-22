@@ -11,6 +11,18 @@ namespace BiniGames.GameCore {
         public static bool IsMarkedToKill(this ActorsAggregator actorsAggregator, int id) {
             return actorsAggregator.GetComponent<GameActor>(id).IsMarkedToKill;
         }
+
+        public static void AddSoftCollider(this ActorsAggregator actorsAggregator, SoftCollider softCollider) {
+            for (var i = 0; i < softCollider.SoftColliders.Count; i++) {
+                actorsAggregator.AddComponent(softCollider.SoftColliders[i].GetInstanceID(), softCollider);
+            }
+        }
+
+        public static void RemoveSoftCollider(this ActorsAggregator actorsAggregator, SoftCollider softCollider) {
+            for (var i = 0; i < softCollider.SoftColliders.Count; i++) {
+                actorsAggregator.RemoveComponent<SoftCollider>(softCollider.SoftColliders[i].GetInstanceID());
+            }
+        }
     }
 
     public class ActorsAggregator {
@@ -19,7 +31,7 @@ namespace BiniGames.GameCore {
         public ActorsAggregator() {
             aggregators = new Dictionary<Type, ComponentsAggregator> {
                 { typeof(GameActor), new ComponentsAggregator<GameActor>() },
-                { typeof(Rigidbody2D), new ComponentsAggregator<Rigidbody2D>()}
+                { typeof(SoftCollider), new ComponentsAggregator<SoftCollider>() }
             };
         }
 

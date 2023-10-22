@@ -1,73 +1,100 @@
-using BiniGames.Effects;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace BiniGames.GameCore {
     public class CollisionSystem {
+        public struct CollissionData {
+            public Collider2D Other;
+            public Collider2D Sender;
+        }
+
         public event Action<Vector3, int> OnMerge;
         public event Action<Vector3, Color, Color, Vector2> OnCollide;
 
-        private Dictionary<int, Collision2D> collisions;
+        private Dictionary<int, CollissionData> collisions;
         private ActorsAggregator actorsAggregator;
         private GameRules gameRules;
 
         public CollisionSystem(ActorsAggregator actorsAggregator, GameRules gameRules) {
             this.actorsAggregator = actorsAggregator;
             this.gameRules = gameRules;
-            collisions = new Dictionary<int, Collision2D>();
+            collisions = new Dictionary<int, CollissionData>();
         }
 
         public void OnCollision(Collision2D collision) {
-            var sender = collision.collider.GetInstanceID();
-            var other = collision.otherCollider.GetInstanceID();
-            if (!actorsAggregator.HasComponent<GameActor>(other) || !actorsAggregator.HasComponent<GameActor>(sender)) return;
-
-            //Prevent double call for same collision from different balls
-            if (!collisions.ContainsKey(sender)) {
-                collisions.Add(other, collision);
-                return;
-            }
-
-            collisions.Remove(collision.otherCollider.GetInstanceID());
-            collisions.Remove(collision.collider.GetInstanceID());
-
-            if (collision.relativeVelocity.sqrMagnitude >= gameRules.SqrMinRelativeVelocityForEffects) PlayCollideEffect(collision);
-
-            if (actorsAggregator.GetGradeByColliderId(other) != actorsAggregator.GetGradeByColliderId(sender)) return;
-
-            if (actorsAggregator.IsMarkedToKill(sender) || actorsAggregator.IsMarkedToKill(other)) return;
-
-            Merge(collision);
+            var sender = collision.collider;
+            var other = collision.otherCollider;
+            TryMerge(sender, other, collision.relativeVelocity);
         }
 
-        private void PlayCollideEffect(Collision2D collision) {
-            var actor1 = collision.otherCollider.gameObject.GetComponent<GameActor>();
-            var actor2 = collision.collider.GetComponent<GameActor>();
+        public void OnTrigger(Collider2D sender, Collider2D other) {
+            var softBody1 = actorsAggregator.GetComponent<SoftCollider>(sender.GetInstanceID());
+            var softBody2 = actorsAggregator.GetComponent<SoftCollider>(other.GetInstanceID());
+
+            /*if (!actorsAggregator.HasComponent<GameActor>(softBody1.ColliderId) || !actorsAggregator.HasComponent<GameActor>(softBody2.ColliderId)) return;*/
+
+            var actor1 = actorsAggregator.GetComponent<GameActor>(softBody1.ColliderId);
+            var actor2 = actorsAggregator.GetComponent<GameActor>(softBody2.ColliderId);
+
+            TryMerge(sender, other, actor1.Velocity + actor2.Velocity);
+        }
+
+        private void TryMerge(Collider2D sender, Collider2D other, Vector3 relativeVelocity) {
+            var senderId = sender.GetInstanceID();
+            var otherId = other.GetInstanceID();
+            if (!actorsAggregator.HasComponent<GameActor>(otherId) || !actorsAggregator.HasComponent<GameActor>(senderId)) return;
+
+            if (actorsAggregator.IsMarkedToKill(senderId) || actorsAggregator.IsMarkedToKill(otherId)) return;
+
+            if (gameRules.UseSoftPrefabs) {
+                var collision = new CollissionData() { Other = other, Sender = sender };
+                //Prevent double call for same collision from different balls
+                if (!collisions.ContainsKey(senderId)) {
+                    collisions.Add(otherId, collision);
+                    return;
+                }
+
+                collisions.Remove(collision.Other.GetInstanceID());
+                collisions.Remove(collision.Sender.GetInstanceID());
+            }
+
+            if (relativeVelocity.sqrMagnitude >= gameRules.SqrMinRelativeVelocityForEffects) PlayCollideEffect(other, sender);
+
+            if (actorsAggregator.GetGradeByColliderId(otherId) != actorsAggregator.GetGradeByColliderId(senderId)) return;
+
+            Merge(other, sender);
+        }
+
+        private void PlayCollideEffect(Collider2D collider1, Collider2D collider2) {
+            var actor1 = collider1.gameObject.GetComponent<GameActor>(); //other
+            var actor2 = collider2.GetComponent<GameActor>();
             var direction = actor1.transform.position - actor2.transform.position;
             var distance = direction.magnitude;
             var spawnPosition = actor2.transform.position + direction.normalized * distance / 2;
-            OnCollide?.Invoke(spawnPosition, actor1.Color, actor2.Color, new Vector2((collision.otherCollider as CircleCollider2D).radius, (collision.collider as CircleCollider2D).radius));
+            OnCollide?.Invoke(spawnPosition, actor1.Color, actor2.Color, new Vector2((collider1 as CircleCollider2D).radius, (collider2 as CircleCollider2D).radius));
         }
 
-        private void Merge(Collision2D collision) {
-            var otherId = collision.otherCollider.GetInstanceID();
-            var actor1 = collision.otherCollider.gameObject.GetComponent<GameActor>();
-            var actor2 = collision.collider.GetComponent<GameActor>();
+        private void Merge(Collider2D collider1, Collider2D collider2) {
+            var otherId = collider1.GetInstanceID();
+            var actor1 = collider1.gameObject.GetComponent<GameActor>();
+            var actor2 = collider2.GetComponent<GameActor>();
             var direction = actor1.transform.position - actor2.transform.position;
             var distance = direction.magnitude;
             var spawnPosition = actor2.transform.position + direction.normalized * distance / 2;
             OnMerge?.Invoke(spawnPosition, actor1.Key + 1);
 
             actor1.AnimateDeath(spawnPosition);
-            actor1.OnCollide -= OnCollision;
+            actor1.OnCollision -= OnCollision;
+            actor1.OnTrigger -= OnTrigger;
             actorsAggregator.RemoveComponent<GameActor>(actor1.ColliderId);
-            actorsAggregator.RemoveComponent<Rigidbody2D>(actor1.ColliderId);
+            if (gameRules.UseSoftPrefabs) actorsAggregator.RemoveSoftCollider(actor1.SoftCollider);
 
             actor2.AnimateDeath(spawnPosition);
-            actor2.OnCollide -= OnCollision;
+            actor2.OnCollision -= OnCollision;
+            actor2.OnTrigger -= OnTrigger;
             actorsAggregator.RemoveComponent<GameActor>(actor2.ColliderId);
-            actorsAggregator.RemoveComponent<Rigidbody2D>(actor2.ColliderId);
+            if (gameRules.UseSoftPrefabs) actorsAggregator.RemoveSoftCollider(actor2.SoftCollider);
         }
     }
 }

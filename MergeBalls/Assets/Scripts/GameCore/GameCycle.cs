@@ -48,7 +48,7 @@ namespace BiniGames.GameCore {
         private async Task SpawnPresettedActors(List<GameActor> actors) {
             for (var i = 0; i < actors.Count; i++) {
                 var actor = actors[i];
-                PrepareActor(actor, false);
+                PrepareActor(actor);
                 await actor.AnimateSpawn();
 
                 actor.SwitchGravity(true);
@@ -58,7 +58,7 @@ namespace BiniGames.GameCore {
 
         private async Task<GameActor> SpawnPlayer() {
             var actor = spawnManager.SpawnPlayer();
-            PrepareActor(actor, false);
+            PrepareActor(actor);
             await actor.AnimateSpawn();
 
             return actor;
@@ -82,7 +82,8 @@ namespace BiniGames.GameCore {
             }
 
             var actor = spawnManager.SpawnOnMerge(position, grade);
-            PrepareActor(actor, true);
+            PrepareActor(actor);
+            actor.SwitchGravity(true);
             await actor.AnimateSpawn();
         }
 
@@ -90,12 +91,12 @@ namespace BiniGames.GameCore {
             spawnManager.SpwanCollideEffect(position, color1, color2, sizes);
         }
 
-        private void PrepareActor(GameActor actor, bool isStartGravity) {
+        private void PrepareActor(GameActor actor) {
             actor.gameObject.SetActive(true);
-            actor.OnCollide += collesionSystem.OnCollision;
+            actor.OnCollision += collesionSystem.OnCollision;
+            actor.OnTrigger += collesionSystem.OnTrigger;
             actorsAggregator.AddComponent(actor.ColliderId, actor);
-            actorsAggregator.AddComponent(actor.ColliderId, actor.Rigidbody);
-            actor.SwitchGravity(isStartGravity);
+            if (rules.UseSoftPrefabs) actorsAggregator.AddSoftCollider(actor.SoftCollider);
         }
     }
 }
