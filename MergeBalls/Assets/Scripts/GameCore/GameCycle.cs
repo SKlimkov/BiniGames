@@ -12,7 +12,7 @@ namespace BiniGames.GameCore {
         private GameRules rules;
         private Vector3 playerSpawnPosition;
         private ActorsAggregator actorsAggregator;
-        private CollisionSystem collesionSystem;
+        private CollisionSystem collisionSystem;
         private bool alreadyWin;
         private bool alreadyStarted = true;
 
@@ -29,9 +29,9 @@ namespace BiniGames.GameCore {
             pointerUpHandler.OnPointerEvent += OnTapComplete;
             playerSpawnPosition = SpawnHelpers.GetPlayerSpawnPosition();
 
-            collesionSystem = new CollisionSystem(actorsAggregator, rules);
-            collesionSystem.OnMerge += OnMerge;
-            collesionSystem.OnCollide += OnCollide;
+            collisionSystem = new CollisionSystem(actorsAggregator, rules);
+            collisionSystem.OnMerge += OnMerge;
+            collisionSystem.OnCollide += OnCollide;
         }
 
         public async Task PrepareField() {
@@ -59,7 +59,7 @@ namespace BiniGames.GameCore {
         private async Task<GameActor> SpawnPlayer() {
             var actor = spawnManager.SpawnPlayer();
             PrepareActor(actor);
-            await actor.AnimateSpawn();
+            await actor.AnimateSpawn(true);
 
             return actor;
         }
@@ -93,7 +93,7 @@ namespace BiniGames.GameCore {
 
         private void PrepareActor(GameActor actor) {
             actor.gameObject.SetActive(true);
-            actor.OnTrigger += collesionSystem.OnTrigger;
+            actor.OnTrigger += collisionSystem.OnTrigger;
             actorsAggregator.AddComponent(actor.ColliderId, actor);
         }
     }

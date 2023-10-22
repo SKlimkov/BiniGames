@@ -23,7 +23,6 @@ namespace BiniGames.GameCore {
         }
 
         public void AddComponent<TComponent>(int id, TComponent component) where TComponent : Component {
-            Debug.LogFormat("AddComponent {0}", id);
             var isSucces = aggregators.TryGetValue(typeof(TComponent), out var aggregator);
             if (!isSucces) throw new Exception($"Can't find aggregator for type {typeof(TComponent)}");
 

@@ -11,54 +11,127 @@ namespace BiniGames.GameCore {
     public class GameActor : MonoBehaviour, IPolyPoolable {
         [SerializeField] private int grade;
         [SerializeField] private CircleCollider2D animationViewCollider;
-        [SerializeField] private CircleCollider2D body;
         [SerializeField] private CircleCollider2D trigger;
+        [SerializeField] private Rigidbody2D triggerBody;
+        [SerializeField] private Rigidbody2D rootRbody;
         [SerializeField] private Rigidbody2D animatedViewRbody;
         [SerializeField] private TrailRenderer trailRenderer;
         [SerializeField] private Color color;
         [SerializeField] private GameObject softBody;
         [SerializeField] private Transform additionalRoot;
+        [SerializeField] private TriggerEventWrapper triggerEventWrapper;
+        [SerializeField] private SpriteRenderer[] spriteRenderers;
 
+        [SerializeField] private Color normalColor;
+        [SerializeField] private Color hideColor;
+        
+        private float[] softBodyRotations;
+        private Vector2[] softBodyPositions;
         private Rigidbody2D[] softRigidBodies;
         private CircleCollider2D[] softColliders;
 
         public event Action<GameActor> OnDeath;
         public event Action<Collider2D, Collider2D> OnTrigger;
 
-        private float defaultScaleFactor = 0.01f;
-
         public Vector3 Velocity { get { return GetAverageVelocity(softRigidBodies); } }
         public Color Color => color;
         public int Key => grade;
-        public int ColliderId => body.GetInstanceID();
-        public bool IsMarkedToKill { get; private set; }
+        public int ColliderId => trigger.GetInstanceID();
+        public bool IsMarkedToKill;
 
         private void Awake() {
             softRigidBodies = softBody.GetComponentsInChildren<Rigidbody2D>();
+            softBodyPositions = new Vector2[softRigidBodies.Length];
+            softBodyRotations = new float[softRigidBodies.Length];
+            for (var i = 0; i < softRigidBodies.Length; i++) {
+                softBodyPositions[i] = softRigidBodies[i].transform.localPosition;
+                softBodyRotations[i] = softRigidBodies[i].transform.localRotation.eulerAngles.z;
+            }
             softColliders = softBody.GetComponentsInChildren<CircleCollider2D>();
-            GetComponentInChildren<TriggerEventWrapper>().OnTrigger += OnTriggerHandler;
+            triggerEventWrapper.OnTrigger += OnTriggerHandler;
             trigger.radius = animationViewCollider.radius;
-            body.radius = animationViewCollider.radius;
             SetActionToComponentList(softRigidBodies, (x) => { x.mass = PhysicsHelpers.RadiusToMass(animationViewCollider.radius); });
             animatedViewRbody.mass = PhysicsHelpers.RadiusToMass(animationViewCollider.radius);
         }
 
+        [EasyButtons.Button]
+        private void ResetBody() {
+            SetActionToComponentList(spriteRenderers, (x) => { x.color = hideColor; });
+            SetActionToComponentList(softRigidBodies, (x) => { x.bodyType = RigidbodyType2D.Kinematic; });
+            SetActionToComponentList(softRigidBodies, (x) => { x.constraints = RigidbodyConstraints2D.None; });
+            softBody.gameObject.SetActive(true);
+            triggerBody.gameObject.SetActive(true);
+            animatedViewRbody.gameObject.SetActive(true);
+
+            rootRbody.bodyType = RigidbodyType2D.Kinematic;
+            rootRbody.constraints = RigidbodyConstraints2D.None;
+
+            triggerBody.bodyType = RigidbodyType2D.Kinematic;
+            triggerBody.constraints = RigidbodyConstraints2D.None;
+
+            animatedViewRbody.bodyType = RigidbodyType2D.Kinematic;
+            animatedViewRbody.constraints = RigidbodyConstraints2D.None;
+
+            for (var i = 0; i < softRigidBodies.Length; i++) {
+                var rb = softRigidBodies[i];
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0;
+                rb.transform.localPosition = softBodyPositions[i];
+                rb.transform.localRotation = Quaternion.Euler(0, 0, softBodyRotations[i]);
+            }
+
+            rootRbody.velocity = Vector2.zero;
+            rootRbody.angularVelocity = 0;
+            rootRbody.transform.localRotation = Quaternion.identity;
+
+            triggerBody.velocity = Vector2.zero;
+            triggerBody.angularVelocity = 0;
+            triggerBody.transform.localPosition = Vector3.zero;
+            triggerBody.transform.localRotation = Quaternion.identity;
+
+            animatedViewRbody.velocity = Vector2.zero;
+            animatedViewRbody.angularVelocity = 0;
+            animatedViewRbody.transform.localPosition = Vector3.zero;
+            animatedViewRbody.transform.localRotation = Quaternion.identity;
+
+            rootRbody.constraints = RigidbodyConstraints2D.None;
+            rootRbody.bodyType = RigidbodyType2D.Dynamic;
+
+            triggerBody.constraints = RigidbodyConstraints2D.None;
+            triggerBody.bodyType = RigidbodyType2D.Dynamic;
+
+            animatedViewRbody.constraints = RigidbodyConstraints2D.None;
+            animatedViewRbody.bodyType = RigidbodyType2D.Dynamic;
+
+            SetActionToComponentList(softRigidBodies, (x) => { x.constraints = RigidbodyConstraints2D.FreezeAll; });
+            SetActionToComponentList(softRigidBodies, (x) => { x.bodyType = RigidbodyType2D.Dynamic; });
+            softBody.gameObject.SetActive(false);
+            triggerBody.gameObject.SetActive(false);
+            animatedViewRbody.gameObject.SetActive(false);
+            SetActionToComponentList(spriteRenderers, (x) => { x.color = normalColor; });
+        }
+
         public void OnPop() {
+            ResetBody();
+
             SwitchGravity(false);
             IsMarkedToKill = false;
-            trailRenderer.emitting = true;
-            trailRenderer.widthMultiplier = animationViewCollider.radius * 2f * 0.85f;
-            SetActionToComponentList(softRigidBodies, (x) => { x.constraints = RigidbodyConstraints2D.None; });
-            additionalRoot.position = Vector3.zero;
+            trailRenderer.widthMultiplier = animationViewCollider.radius * 2f * 0.85f;            
+            additionalRoot.localPosition = Vector3.zero;
         }
 
         public void OnPool() {
+            transform.rotation = Quaternion.identity;
             SwitchGravity(false);
-            transform.localScale = Vector3.one * defaultScaleFactor;
         }
 
         public void Fire(Vector3 direction) {
+            SetActionToComponentList(softRigidBodies, x => { x.simulated = true; });
             SetActionToComponentList(softRigidBodies, (x) => { x.AddForce(direction * x.mass, ForceMode2D.Impulse); });
+
+            SetActionToComponentList(softRigidBodies, (x) => { x.constraints = RigidbodyConstraints2D.None; });
+            animatedViewRbody.constraints = RigidbodyConstraints2D.None;
+            rootRbody.constraints = RigidbodyConstraints2D.None;
         }
 
         public void SwitchGravity(bool active) {
@@ -68,27 +141,38 @@ namespace BiniGames.GameCore {
             animatedViewRbody.gravityScale = active ? 1 : 0;
         }
 
-        public async Task AnimateSpawn() {
-            body.gameObject.SetActive(true);
-            trigger.gameObject.SetActive(true);
+        public async Task AnimateSpawn(bool isPlayer = false) {
+            trailRenderer.Clear();
+            trailRenderer.emitting = true;
             animationViewCollider.gameObject.SetActive(true);
+            animatedViewRbody.gravityScale = 1;
+            animatedViewRbody.constraints = isPlayer ? RigidbodyConstraints2D.FreezeAll : RigidbodyConstraints2D.None;
             await additionalRoot.DOScale(Vector3.one, 0.2f).SetEase(Ease.OutBack).AsyncWaitForCompletion();
 
+            SetActionToComponentList(softRigidBodies, x => { x.simulated = isPlayer ? false : true; });
+            SetActionToComponentList(softRigidBodies, (x) => { x.constraints = isPlayer ?  RigidbodyConstraints2D.FreezeAll : RigidbodyConstraints2D.None; });
+            rootRbody.constraints = isPlayer ? RigidbodyConstraints2D.FreezeAll : RigidbodyConstraints2D.None;
+
+            trigger.gameObject.SetActive(true);
             softBody.SetActive(true);
+            animatedViewRbody.gravityScale = 0;
             animationViewCollider.gameObject.SetActive(false);
         }
 
         public async void AnimateDeath(Vector3 mergePosition) {
             IsMarkedToKill = true;
             softBody.SetActive(false);
-            body.gameObject.SetActive(false);
             trigger.gameObject.SetActive(false);
             animationViewCollider.gameObject.SetActive(true);
+            animatedViewRbody.gravityScale = 1;
             SwitchGravity(false);
             trailRenderer.emitting = false;
+            SetActionToComponentList(softRigidBodies, x => { x.simulated = false; });
 
             for (var i = 0; i < softColliders.Length; i++) softColliders[i].gameObject.SetActive(true);
             SetActionToComponentList(softRigidBodies, (x) => { x.constraints = RigidbodyConstraints2D.FreezeAll; });
+            animatedViewRbody.constraints = RigidbodyConstraints2D.FreezeAll;
+            rootRbody.constraints = RigidbodyConstraints2D.FreezeAll;
 
             await DOTween.Sequence()
                 .Append(additionalRoot.DOScale(0, 0.2f))
@@ -100,13 +184,14 @@ namespace BiniGames.GameCore {
 
         public void Kill() {
             animationViewCollider.gameObject.SetActive(false);
+            animatedViewRbody.gravityScale = 0;
             OnDeath?.Invoke(this);
         }
 
         private void OnTriggerHandler(Collider2D collider) {
             if (IsMarkedToKill) return;
 
-            OnTrigger?.Invoke(body, collider);
+            OnTrigger?.Invoke(trigger, collider);
         }
 
         private void SetActionToComponentList<TComponent>(TComponent[] list, Action<TComponent> action) {

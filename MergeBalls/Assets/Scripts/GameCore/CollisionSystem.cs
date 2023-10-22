@@ -18,10 +18,10 @@ namespace BiniGames.GameCore {
         }
 
         public void OnTrigger(Collider2D sender, Collider2D other) {
+            if (!actorsAggregator.HasComponent<GameActor>(other.GetInstanceID())) return;
+
             var otherActor = actorsAggregator.GetComponent<GameActor>(other.GetInstanceID());
             if (otherActor.IsMarkedToKill) return;
-
-            Debug.LogFormat("OnTrigger {0}, {1}, {2}", sender.gameObject.name, sender.GetInstanceID(), other.GetInstanceID());
 
             TryMerge(sender, other, actorsAggregator.GetComponent<GameActor>(sender.GetInstanceID()).Velocity + otherActor.Velocity);
         }
@@ -29,7 +29,6 @@ namespace BiniGames.GameCore {
         private void TryMerge(Collider2D sender, Collider2D other, Vector3 relativeVelocity) {
             var senderId = sender.GetInstanceID();
             var otherId = other.GetInstanceID();
-            if (!actorsAggregator.HasComponent<GameActor>(otherId) || !actorsAggregator.HasComponent<GameActor>(senderId)) return;
 
             //Prevent double call for same collision from different balls
             if (!collisions.Contains(senderId)) {
@@ -63,15 +62,16 @@ namespace BiniGames.GameCore {
             var direction = actor1.transform.position - actor2.transform.position;
             var distance = direction.magnitude;
             var spawnPosition = actor2.transform.position + direction.normalized * distance / 2;
-            OnMerge?.Invoke(spawnPosition, actor1.Key + 1);
 
-            actor1.AnimateDeath(spawnPosition);
             actor1.OnTrigger -= OnTrigger;
+            actor1.AnimateDeath(spawnPosition);            
             actorsAggregator.RemoveComponent<GameActor>(actor1.ColliderId);
 
-            actor2.AnimateDeath(spawnPosition);
             actor2.OnTrigger -= OnTrigger;
+            actor2.AnimateDeath(spawnPosition);            
             actorsAggregator.RemoveComponent<GameActor>(actor2.ColliderId);
+
+            OnMerge?.Invoke(spawnPosition, actor1.Key + 1);
         }
     }
 }
