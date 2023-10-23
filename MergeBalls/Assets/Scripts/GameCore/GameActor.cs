@@ -33,6 +33,7 @@ namespace BiniGames.GameCore {
         public event Action<GameActor> OnDeath;
         public event Action<Collider2D, Collider2D> OnTrigger;
 
+        public Material SharedMaterial { get { return spriteRenderers[0].sharedMaterial; } }
         public Vector3 Velocity { get { return GetAverageVelocity(softRigidBodies); } }
         public Color Color => color;
         public int Key => grade;
@@ -48,14 +49,15 @@ namespace BiniGames.GameCore {
                 softBodyRotations[i] = softRigidBodies[i].transform.localRotation.eulerAngles.z;
             }
             softColliders = softBody.GetComponentsInChildren<CircleCollider2D>();
-            triggerEventWrapper.OnTrigger += OnTriggerHandler;
+            triggerEventWrapper.OnTriggerEnterEvent += OnTriggerEnterHandler;
+            triggerEventWrapper.OnTriggerExitEvent += OnTriggerExitHandler;
             trigger.radius = animationViewCollider.radius;
             SetActionToComponentList(softRigidBodies, (x) => { x.mass = PhysicsHelpers.RadiusToMass(animationViewCollider.radius); });
             animatedViewRbody.mass = PhysicsHelpers.RadiusToMass(animationViewCollider.radius);
         }
 
         [EasyButtons.Button]
-        private void ResetBody() {
+        private void ResetBody(bool activateOnComplete = false) {
             SetActionToComponentList(spriteRenderers, (x) => { x.color = hideColor; });
             SetActionToComponentList(softRigidBodies, (x) => { x.bodyType = RigidbodyType2D.Kinematic; });
             SetActionToComponentList(softRigidBodies, (x) => { x.constraints = RigidbodyConstraints2D.None; });
@@ -105,7 +107,7 @@ namespace BiniGames.GameCore {
 
             SetActionToComponentList(softRigidBodies, (x) => { x.constraints = RigidbodyConstraints2D.FreezeAll; });
             SetActionToComponentList(softRigidBodies, (x) => { x.bodyType = RigidbodyType2D.Dynamic; });
-            softBody.gameObject.SetActive(false);
+            softBody.gameObject.SetActive(activateOnComplete);
             triggerBody.gameObject.SetActive(false);
             animatedViewRbody.gameObject.SetActive(false);
             SetActionToComponentList(spriteRenderers, (x) => { x.color = normalColor; });
@@ -188,10 +190,18 @@ namespace BiniGames.GameCore {
             OnDeath?.Invoke(this);
         }
 
-        private void OnTriggerHandler(Collider2D collider) {
+        //private int triggered;
+
+        private void OnTriggerEnterHandler(Collider2D collider) {
+            //triggered++;
             if (IsMarkedToKill) return;
 
             OnTrigger?.Invoke(trigger, collider);
+        }
+
+        private void OnTriggerExitHandler(Collider2D collider) {
+            //triggered--;
+            //if (triggered == 0) ResetBody(true);
         }
 
         private void SetActionToComponentList<TComponent>(TComponent[] list, Action<TComponent> action) {

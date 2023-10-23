@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace BiniGames.UI {
@@ -14,7 +15,8 @@ namespace BiniGames.UI {
             loadingScreenWindow.Hide();
         }
 
-        public void ShowWinScreen() {
+        public async Task ShowWinScreen() {
+            await Task.Delay(50);
             winScreenWindow.Hide();
             winScreenWindow.Show();
         }

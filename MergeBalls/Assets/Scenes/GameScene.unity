@@ -172,6 +172,7 @@ MonoBehaviour:
   pointerMoveHadler: {fileID: 1478700078}
   lineRenderer: {fileID: 1374579371}
   collideEffectPrefab: {fileID: 38921537528233418, guid: 6bb17cee84b8aca45a5a447294fcc4a8, type: 3}
+  grayScaleMaterial: {fileID: 2100000, guid: 6ebeb6f36785b4d46bd114a0ab31908d, type: 2}
 --- !u!4 &33889640
 Transform:
   m_ObjectHideFlags: 0

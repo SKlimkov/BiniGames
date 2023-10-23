@@ -14,6 +14,8 @@ namespace BiniGames.GameCore.Spawn {
         private List<GameActor> startBallsCache;
         private Vector3 playerSpawnPosition;
 
+        public Material SharedMaterial { get; private set; }
+
         public SpawnManager(GameActor[] actorPrefabs, CollideEffect effectPrefab, GameRules gameRules, Transform ballsRoot, Transform poolRoot) {
             this.gameRules = gameRules;
             this.ballsRoot = ballsRoot;
@@ -25,6 +27,8 @@ namespace BiniGames.GameCore.Spawn {
             effectPool = new MonoObjectPool<CollideEffect>(poolRoot);
             startBallsCache = new List<GameActor>();
             playerSpawnPosition = SpawnHelpers.GetPlayerSpawnPosition();
+
+            actorPrefabs[0].SharedMaterial.SetFloat("_IsColorized", 1f);
         }
 
         public GameActor SpawnPlayer() {

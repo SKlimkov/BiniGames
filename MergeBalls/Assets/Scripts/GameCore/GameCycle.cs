@@ -1,8 +1,10 @@
 using BiniGames.GameCore.Spawn;
 using BiniGames.Input;
+using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace BiniGames.GameCore {
@@ -18,7 +20,7 @@ namespace BiniGames.GameCore {
 
         private List<GameActor> presettedActors;
 
-        public event Action OnWin;
+        public event Func<Task> OnWin;
 
         public bool CanShoot => alreadyStarted && !alreadyWin && player != null;
 
@@ -26,6 +28,7 @@ namespace BiniGames.GameCore {
             this.actorsAggregator = actorsAggregator;
             this.rules = rules;
             this.spawnManager = spawnManager;
+
             pointerUpHandler.OnPointerEvent += OnTapComplete;
             playerSpawnPosition = SpawnHelpers.GetPlayerSpawnPosition();
 
@@ -60,7 +63,7 @@ namespace BiniGames.GameCore {
             var actor = spawnManager.SpawnPlayer();
             PrepareActor(actor);
             await actor.AnimateSpawn(true);
-
+            
             return actor;
         }
 
@@ -76,15 +79,20 @@ namespace BiniGames.GameCore {
         }
 
         private async void OnMerge(Vector3 position, int grade) {
-            if (!alreadyWin && grade >= rules.WinGrade) {
-                alreadyWin = true;
-                OnWin?.Invoke();
-            }
-
             var actor = spawnManager.SpawnOnMerge(position, grade);
             PrepareActor(actor);
             actor.SwitchGravity(true);
+
             await actor.AnimateSpawn();
+
+            if (!alreadyWin && grade >= rules.WinGrade) {
+                alreadyWin = true;
+                var startTime = Time.time;
+                Debug.LogErrorFormat("OnMerge A {0}", Time.time);
+                await OnWin?.Invoke();
+
+                await startTime.DoTimer(5f, 1f, 0f, x => { actor.SharedMaterial.SetFloat("_IsColorized", x); }).OnComplete(() => { Debug.LogErrorFormat("OnMerge B {0}", Time.time); }).AsyncWaitForCompletion();                
+            }
         }
 
         private void OnCollide(Vector3 position, Color color1, Color color2, Vector2 sizes) {

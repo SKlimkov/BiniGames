@@ -3,7 +3,6 @@ using BiniGames.GameCore;
 using BiniGames.GameCore.Spawn;
 using BiniGames.Input;
 using BiniGames.UI;
-using Cysharp.Threading.Tasks;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -19,6 +18,12 @@ namespace BiniGames {
         [SerializeField] private PointerMoveHandler pointerMoveHadler;
         [SerializeField] private LineRenderer lineRenderer;
         [SerializeField] private CollideEffect collideEffectPrefab;
+
+        private bool isGray;
+        [EasyButtons.Button]
+        private void SetGray() {
+            var grayScale = isGray ? 0f : 1f;
+        }
 
         private async void Awake() {
             var spawnManager = new SpawnManager(actorPrefabs, collideEffectPrefab, gameRules, ballsRoot, poolRoot);

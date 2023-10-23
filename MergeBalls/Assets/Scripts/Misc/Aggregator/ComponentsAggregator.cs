@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using System.Linq;
 
 namespace BiniGames {
     public abstract class ComponentsAggregator {
@@ -33,5 +34,11 @@ namespace BiniGames {
             if (!isSuccess) throw new Exception($"Can't find component {typeof(TComponent)} with {id} instance id!");
             return actor;
         }
+
+        public TComponent GetComponentByIndex(int index) {
+            return aggregation.ElementAt(index).Value;
+        }
+
+        public int Count { get { return aggregation.Count; } }
     }
 }

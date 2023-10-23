@@ -15,11 +15,14 @@ namespace BiniGames.GameCore {
 
     public class ActorsAggregator {
         private Dictionary<Type, ComponentsAggregator> aggregators;
+        private List<Component> componentCache;
 
         public ActorsAggregator() {
             aggregators = new Dictionary<Type, ComponentsAggregator> {
-                { typeof(GameActor), new ComponentsAggregator<GameActor>() }
+                { typeof(GameActor), new ComponentsAggregator<GameActor>() },
+                { typeof(SpriteRenderer), new ComponentsAggregator<SpriteRenderer>() }
             };
+            componentCache = new List<Component>();
         }
 
         public void AddComponent<TComponent>(int id, TComponent component) where TComponent : Component {

@@ -17,7 +17,7 @@ MonoBehaviour:
   MaxStartBallsGrade: 3
   PlayerSpawnType: 1
   MaxPlayerBallGrade: 6
-  PlayerGrade: 2
+  PlayerGrade: 8
   ForcePower: 20
   SightLineLenght: 7.5
   WinGrade: 9
